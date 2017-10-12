@@ -233,7 +233,7 @@ module.exports = (client) => {
     if (!guild) return res.status(404);
     const isManaged = guild && !!guild.member(req.user.id) ? guild.member(req.user.id).permissions.has('MANAGE_GUILD') : false;
     if (req.user.id === client.appInfo.owner.id) {
-      console.log(`Admin bypass for managing server: ${req.params.guildID}`);
+      console.log(`Admin bypass ${req.user.id} for managing server: ${req.params.guildID}`);
     } else if (!isManaged) {
       res.redirect('/');
     }
@@ -247,10 +247,11 @@ module.exports = (client) => {
 
   app.get('/manage/:guildID', checkAuth, (req, res) => {
     const guild = client.guilds.get(req.params.guildID);
+
     if (!guild) return res.status(404);
     const isManaged = guild && !!guild.member(req.user.id) ? guild.member(req.user.id).permissions.has('MANAGE_GUILD') : false;
     if (req.user.id === client.appInfo.owner.id) {
-      console.log(`Admin bypass for managing server: ${req.params.guildID}`);
+      console.log(`Admin bypass ${req.user.id} for managing server: ${req.params.guildID}`);
     } else if (!isManaged) {
       res.redirect('/');
     }
@@ -267,7 +268,7 @@ module.exports = (client) => {
     if (!guild) return res.status(404);
     const isManaged = guild && !!guild.member(req.user.id) ? guild.member(req.user.id).permissions.has('MANAGE_GUILD') : false;
     if (req.user.id === client.appInfo.owner.id) {
-      console.log(`Admin bypass for managing server: ${req.params.guildID}`);
+      console.log(`Admin bypass ${req.user.id} for managing server: ${req.params.guildID}`);
     } else if (!isManaged) {
       res.redirect('/');
     }
@@ -283,7 +284,7 @@ module.exports = (client) => {
     if (!guild) return res.status(404);
     const isManaged = guild && !!guild.member(req.user.id) ? guild.member(req.user.id).permissions.has('MANAGE_GUILD') : false;
     if (req.user.id === client.appInfo.owner.id) {
-      console.log(`Admin bypass for managing server: ${req.params.guildID}`);
+      console.log(`Admin bypass ${req.user.id} for managing server: ${req.params.guildID}`);
     } else if (!isManaged) {
       res.redirect('/');
     }
