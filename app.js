@@ -5,16 +5,42 @@ const { Client } = require('discord.js');
 const {readdir} = require('fs-nextra');
 const Enmap = require('enmap');
 const EnmapLevel = require('enmap-level');
+const Sequelize = require('sequelize');
 
 class YorkDev extends Client {
   constructor(options) {
     super(options);
     this.db = require('./functions/EnmapDB.js');
     this.config = require('./config.js');
+    this.sequelize = new Sequelize(this.config.database.data, this.config.database.user, this.config.database.pass, { host: this.config.database.host, dialect:'postgres', logging:false });
+    this.tags = this.sequelize.define('tags', {
+      name: {
+        type: Sequelize.STRING,
+        unique: true
+      },
+      description: Sequelize.TEXT,
+      username: Sequelize.STRING,
+      usage_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+      }
+    });
+
+    // { points: 200, level: 1, user: message.author.id, guild: message.guild.id, daily: 
+    this.points = this.sequelize.define('points', {
+      user: { type: Sequelize.TEXT, unique: true },
+      userid: Sequelize.TEXT,
+      guildid: Sequelize.TEXT,
+      points: Sequelize.INTEGER,
+      daily: Sequelize.TEXT,
+      level: { type: Sequelize.INTEGER, defaultValue: 0, allowNull: false }
+    });
+
     this.settings = new Enmap({provider: new EnmapLevel({name: 'settings'})});
     this.consent = new Enmap({provider: new EnmapLevel({name: 'consent'})});
     this.blacklist = new Enmap({provider: new EnmapLevel({name: 'blacklist'})});
-    this.points = new Enmap({provider: new EnmapLevel({name: 'points'})});
+    // this.points = new Enmap({provider: new EnmapLevel({name: 'points'})});
     this.commands = new Enmap();
     this.aliases = new Enmap();
     this.invspam = new Enmap();
@@ -84,9 +110,12 @@ const client = new YorkDev({
   disabledEvents:['TYPING_START']
 });
 
-console.log(client.config.permLevels.map(p=>`${p.level} : ${p.name}`));
-
 require('./functions/utilities.js')(client);
+
+client.once('ready', () => {
+  client.tags.sync();
+  client.points.sync();
+});
 
 const init = async () => {
   const cmdFiles = await readdir('./commands/');

@@ -41,9 +41,9 @@ module.exports = class {
     const command = args.shift().toLowerCase();
     const cmd = this.client.commands.get(command) || this.client.commands.get(this.client.aliases.get(command));
 
-    if (this.client.tags.has(command)) {
-      return message.channel.send(`${args.join(' ')} ${this.client.tags.get(command).contents}`);
-    }
+    // if (this.client.tags.has(command)) {
+    //   return message.channel.send(`${args.join(' ')} ${this.client.tags.get(command).contents}`);
+    // }
 
     if (!cmd) return;
 

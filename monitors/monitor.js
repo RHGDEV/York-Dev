@@ -72,28 +72,37 @@ module.exports = class {
   }
 
   static async givePoints(client, message, level) { // eslint-disable-line no-unused-vars
-    if (message.channel.type !== 'text') return;
-    if (!await this.isMessageSubstantial(message)) return;
-    const settings = message.settings;
-    if (message.content.startsWith(settings.prefix) || message.content.startsWith('docs, ')) return;
-    const score = client.points.get(`${message.guild.id}-${message.author.id}`) || { points: 200, level: 1, user: message.author.id, guild: message.guild.id, daily: 1504120109 };
-    const timedOut = timeout.get(`${message.guild.id}-${message.author.id}`);
-    if (timedOut) return;
-    timeout.set(`${message.guild.id}-${message.author.id}`, true);
-    const points = giveRandomPoints(parseInt(settings.minPoints), parseInt(settings.maxPoints));
-    setTimeout(() => {
-      timeout.set(`${message.guild.id}-${message.author.id}`, false);
-      score.points += points;
-      console.log(`Awarded ${points} to ${message.author.username}`);
-    }, parseInt(settings.scoreTime) * 60 * 1000);
-
-    const curLevel = Math.floor(0.1 * Math.sqrt(score.points));
-    if (score.level < curLevel) {
-      if (settings.levelNotice === 'true')
-        message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
-      score.level = curLevel;
+    try {
+      if (message.channel.type !== 'text') return;
+      if (!await this.isMessageSubstantial(message)) return;
+  
+      const settings = message.settings;
+      if (message.content.startsWith(settings.prefix) || message.content.startsWith('docs, ')) return;
+      
+      let score = await client.points.findOne({where: {user: `${message.guild.id}-${message.author.id}`}});
+      if (!score) score = {user: `${message.guild.id}-${message.author.id}`, userid: message.author.id, guildid: message.guild.id, points: 200, daily: 1504120109, level: 1 };
+      console.log(score);
+  
+      // const timedOut = timeout.get(`${message.guild.id}-${message.author.id}`);
+      // if (timedOut) return;
+      // timeout.set(`${message.guild.id}-${message.author.id}`, true);
+      // const points = giveRandomPoints(parseInt(settings.minPoints), parseInt(settings.maxPoints));
+      // setTimeout(() => {
+      //   timeout.set(`${message.guild.id}-${message.author.id}`, false);
+      //   score.points += points;
+      //   console.log(`Awarded ${points} to ${message.author.username}`);
+      // }, parseInt(settings.scoreTime) * 60 * 1000);
+  
+      // const curLevel = Math.floor(0.1 * Math.sqrt(score.points));
+      // if (score.level < curLevel) {
+      //   if (settings.levelNotice === 'true')
+      //     message.reply(`You've leveled up to level **${curLevel}**! Ain't that dandy?`);
+      //   score.level = curLevel;
+      // }
+      client.points.upsert({user: `${message.guild.id}-${message.author.id}`, userid: message.author.id, guildid: message.guild.id, points: score.points, daily: score.daily, level: score.level});
+    } catch (error) {
+      throw error;
     }
-    client.points.set(`${message.guild.id}-${message.author.id}`, score);
   }
 
   static checkAFK(client, message, level) { // eslint-disable-line no-unused-vars
